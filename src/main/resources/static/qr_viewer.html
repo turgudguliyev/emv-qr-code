@@ -2,7 +2,9 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>EMV QR Ödənişi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AZQR Generator</title>
 
     <style>
         * {
@@ -10,123 +12,191 @@
         }
 
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: linear-gradient(135deg, #f0f4ff, #f9fbff);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0;
-        }
-
-        .payment-card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 420px;
             padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1f2937;
         }
 
-        .payment-card h1 {
-            margin-bottom: 5px;
-            font-size: 24px;
-            color: #1f2a44;
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
         }
 
         .subtitle {
-            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 30px;
             color: #6b7280;
-            margin-bottom: 25px;
+            font-size: 14px;
         }
 
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full {
+            grid-column: 1 / -1;
         }
 
         label {
-            display: block;
-            font-size: 13px;
-            color: #374151;
             margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
         }
 
-        input[type="number"] {
+        .required {
+            color: #dc2626;
+        }
+
+        input,
+        select {
             width: 100%;
-            padding: 12px 14px;
-            font-size: 15px;
-            border-radius: 10px;
+            height: 42px;
+            padding: 0 12px;
             border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 14px;
             outline: none;
-            transition: border 0.2s, box-shadow 0.2s;
         }
 
-        input[type="number"]:focus {
+        input:focus,
+        select:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+        }
+
+        input:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #9ca3af;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
+            height: 46px;
             border: none;
-            border-radius: 12px;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
         }
 
         button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            background: #1d4ed8;
         }
 
-        .qr-container {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px dashed #e5e7eb;
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
         }
 
-        .qr-container p {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 10px;
-        }
-
-        .qr-box {
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 14px;
-            min-height: 260px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .qr-placeholder {
-            text-align: center;
-            color: #9ca3af;
-        }
-
-        .qr-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .qr-box img {
+        .error {
             display: none;
-            max-width: 240px;
-            width: 100%;
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 14px;
         }
 
-        @media (max-width: 480px) {
-            .payment-card {
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .success {
+            color: #15803d;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .qr-image {
+            display: block;
+            width: 280px;
+            max-width: 100%;
+            margin: 18px auto 0;
+        }
+
+        .request-section {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .request-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        pre {
+            margin: 0;
+            padding: 15px;
+            background: #111827;
+            color: #e5e7eb;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
                 padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
             }
         }
     </style>
@@ -134,80 +204,824 @@
 
 <body>
 
-<div class="payment-card">
-    <h1>EMV QR Ödənişi</h1>
-    <div class="subtitle">Təhlükəsiz və sürətli ödəniş</div>
+<div class="container">
 
-    <div class="form-group">
-        <label for="amount">Məbləğ (AZN)</label>
-        <input type="number" id="amount" placeholder="Məs: 25.50"/>
+    <h1>AZQR Generator</h1>
+
+    <div class="subtitle">
+        AZQR məlumatlarını daxil edin və QR kod yaradın.
     </div>
 
-    <button onclick="generateQr()">QR Yarat</button>
 
-    <div class="qr-container">
-        <p>QR kodu skan edin</p>
+    <!-- ========================= -->
+    <!-- QR CONFIGURATION -->
+    <!-- ========================= -->
 
-        <div class="qr-box">
-            <div id="qrPlaceholder" class="qr-placeholder">
-                <div class="qr-icon">▦</div>
-                <span>QR kod yaradılacaq</span>
+    <div class="section">
+
+        <div class="section-title">
+            QR Configuration
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label for="type">
+                    QR Type <span class="required">*</span>
+                </label>
+
+                <select id="type">
+                    <option value="DYNAMIC">DYNAMIC</option>
+                    <option value="STATIC">STATIC</option>
+                </select>
+
             </div>
 
-            <img id="qrImage" alt="QR kod"/>
+
+            <div class="field">
+
+                <label for="channel">
+                    Channel <span class="required">*</span>
+                </label>
+
+                <select id="channel">
+
+                    <option value="MERCHANT">
+                        MERCHANT
+                    </option>
+
+                </select>
+
+            </div>
+
         </div>
+
     </div>
+
+
+    <!-- ========================= -->
+    <!-- BANK -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-title">
+            Bank / Terminal
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label for="bankBic">
+                    Bank BIC <span class="required">*</span>
+                </label>
+
+                <input
+                        id="bankBic"
+                        type="text"
+                        value="VTBAZ020"
+                        placeholder="VTBAZ020"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="terminalId">
+                    Terminal ID <span class="required">*</span>
+                </label>
+
+                <input
+                        id="terminalId"
+                        type="text"
+                        value="123456"
+                        placeholder="Terminal ID"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- SUBJECT IDENTIFIER -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-title">
+            Subject Identifier
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label for="aliasType">
+                    Alias Type <span class="required">*</span>
+                </label>
+
+                <select id="aliasType">
+
+                    <option value="PIN">
+                        PIN
+                    </option>
+
+                    <option value="MOBILE_NUMBER">
+                        MOBILE NUMBER
+                    </option>
+
+                    <option value="EMAIL">
+                        EMAIL
+                    </option>
+
+                    <option value="IBAN" selected>
+                        IBAN
+                    </option>
+
+                    <option value="TAX_ID">
+                        TAX ID
+                    </option>
+
+                    <option value="MERCHANT_ID">
+                        MERCHANT ID
+                    </option>
+
+                    <option value="OBJECT_CODE">
+                        OBJECT CODE
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="aliasValue">
+                    Alias Value <span class="required">*</span>
+                </label>
+
+                <input
+                        id="aliasValue"
+                        type="text"
+                        value="FR7630006000011234567890189"
+                        placeholder="IBAN / PIN / Mobile / Email"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- TRANSACTION -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-title">
+            Transaction
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label for="currency">
+                    Currency <span class="required">*</span>
+                </label>
+
+                <select id="currency">
+
+                    <option value="AZN">
+                        AZN
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="amount">
+                    Amount
+                </label>
+
+                <input
+                        id="amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="25.50"
+                >
+
+                <div class="hint">
+                    DYNAMIC QR üçün məcburidir.
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="merchantCategoryCode">
+                    Merchant Category Code
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                        id="merchantCategoryCode"
+                        type="text"
+                        value="5812"
+                        maxlength="4"
+                        placeholder="5812"
+                >
+
+                <div class="hint">
+                    4 rəqəm olmalıdır.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- MERCHANT -->
+    <!-- ========================= -->
+
+    <div class="section">
+
+        <div class="section-title">
+            Merchant
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+
+                <label for="merchantName">
+                    Merchant Name <span class="required">*</span>
+                </label>
+
+                <input
+                        id="merchantName"
+                        type="text"
+                        value="My Shop"
+                        maxlength="25"
+                        placeholder="Merchant Name"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="merchantCity">
+                    Merchant City <span class="required">*</span>
+                </label>
+
+                <input
+                        id="merchantCity"
+                        type="text"
+                        value="Baku"
+                        maxlength="15"
+                        placeholder="Baku"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="countryCode">
+                    Country Code
+                </label>
+
+                <input
+                        id="countryCode"
+                        type="text"
+                        value="AZ"
+                        maxlength="2"
+                        placeholder="AZ"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="postalCode">
+                    Postal Code
+                </label>
+
+                <input
+                        id="postalCode"
+                        type="text"
+                        maxlength="10"
+                        placeholder="AZ1000"
+                >
+
+            </div>
+
+
+            <div class="field full">
+
+                <label for="coordinates">
+                    Coordinates
+                </label>
+
+                <input
+                        id="coordinates"
+                        type="text"
+                        maxlength="16"
+                        placeholder="Optional"
+                >
+
+                <div class="hint">
+                    Optional AZQR coordinates.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- GENERATE -->
+    <!-- ========================= -->
+
+    <button
+            id="generateButton"
+            onclick="generateQr()">
+
+        AZQR Yarat
+
+    </button>
+
+
+    <!-- ERROR -->
+
+    <div
+            id="error"
+            class="error">
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- RESULT -->
+    <!-- ========================= -->
+
+    <div
+            id="result"
+            class="result">
+
+        <div class="success">
+            AZQR uğurla yaradıldı
+        </div>
+
+        <img
+                id="qrImage"
+                class="qr-image"
+                alt="AZQR"
+        >
+
+
+        <div class="request-section">
+
+            <div class="request-section-title">
+                Göndərilən Request
+            </div>
+
+            <pre id="requestJson"></pre>
+
+        </div>
+
+    </div>
+
 </div>
 
+
 <script>
-    async function generateQr() {
-        const amount = document.getElementById("amount").value;
 
-        if (!amount || amount <= 0) {
-            alert("Zəhmət olmasa düzgün məbləğ daxil edin");
-            return;
-        }
+    const typeElement =
+        document.getElementById("type");
 
-        const requestBody = {
-            type: "DYNAMIC",
-            channel: "MERCHANT",
-            currency: "AZN",
-            bankBic: "VTBAZ020",
-            aliasValue: "FR7630006000011234567890189",
-            aliasType: "IBAN",
-            amount: parseFloat(amount),
-            merchantName: "My Shop",
-            merchantCity: "Baku",
-            merchantCategoryCode: "5812",
-            terminalId: "123456"
-        };
+    const amountElement =
+        document.getElementById("amount");
 
-        try {
-            const response = await fetch("http://localhost:8080/v1/qr-operations", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestBody)
-            });
 
-            if (!response.ok) {
-                throw new Error("Backend-dən cavab alınmadı");
-            }
+    /*
+     * DYNAMIC / STATIC
+     */
 
-            const data = await response.json();
+    typeElement.addEventListener(
+        "change",
+        updateAmountState
+    );
 
-            const qrImage = document.getElementById("qrImage");
-            const placeholder = document.getElementById("qrPlaceholder");
 
-            qrImage.src = "data:image/png;base64," + data.content;
-            qrImage.style.display = "block";
-            placeholder.style.display = "none";
+    function updateAmountState() {
 
-        } catch (err) {
-            alert("Xəta baş verdi: " + err.message);
+        if (typeElement.value === "DYNAMIC") {
+
+            amountElement.required = true;
+
+            amountElement.placeholder =
+                "Məs: 25.50";
+
+        } else {
+
+            amountElement.required = false;
+
+            amountElement.placeholder =
+                "Optional";
+
         }
     }
+
+
+    /*
+     * Generate AZQR
+     */
+
+    async function generateQr() {
+
+        const button =
+            document.getElementById(
+                "generateButton"
+            );
+
+        const errorElement =
+            document.getElementById("error");
+
+        const resultElement =
+            document.getElementById("result");
+
+        const qrImage =
+            document.getElementById("qrImage");
+
+
+        /*
+         * Reset
+         */
+
+        errorElement.style.display =
+            "none";
+
+        resultElement.style.display =
+            "none";
+
+
+        /*
+         * Read values
+         */
+
+        const type =
+            document.getElementById("type").value;
+
+        const channel =
+            document.getElementById("channel").value;
+
+        const bankBic =
+            document.getElementById("bankBic")
+                .value.trim();
+
+        const aliasType =
+            document.getElementById("aliasType").value;
+
+        const aliasValue =
+            document.getElementById("aliasValue")
+                .value.trim();
+
+        const currency =
+            document.getElementById("currency").value;
+
+        const amountValue =
+            document.getElementById("amount").value;
+
+        const terminalId =
+            document.getElementById("terminalId")
+                .value.trim();
+
+        const merchantName =
+            document.getElementById("merchantName")
+                .value.trim();
+
+        const merchantCity =
+            document.getElementById("merchantCity")
+                .value.trim();
+
+        const merchantCategoryCode =
+            document.getElementById(
+                "merchantCategoryCode"
+            ).value.trim();
+
+        const countryCode =
+            document.getElementById("countryCode")
+                .value.trim();
+
+        const postalCode =
+            document.getElementById("postalCode")
+                .value.trim();
+
+        const coordinates =
+            document.getElementById("coordinates")
+                .value.trim();
+
+
+        /*
+         * Validation
+         */
+
+        if (!bankBic) {
+            return showError(
+                "Bank BIC daxil edin."
+            );
+        }
+
+        if (!aliasValue) {
+            return showError(
+                "Alias Value daxil edin."
+            );
+        }
+
+        if (!terminalId) {
+            return showError(
+                "Terminal ID daxil edin."
+            );
+        }
+
+        if (!merchantName) {
+            return showError(
+                "Merchant Name daxil edin."
+            );
+        }
+
+        if (!merchantCity) {
+            return showError(
+                "Merchant City daxil edin."
+            );
+        }
+
+        /*
+         * MCC
+         *
+         * String saxlanılır ki,
+         * 0123 kimi dəyərlər itməsin.
+         */
+
+        if (!/^\d{4}$/.test(
+            merchantCategoryCode
+        )) {
+
+            return showError(
+                "Merchant Category Code 4 rəqəm olmalıdır."
+            );
+        }
+
+
+        /*
+         * Country Code
+         */
+
+        if (
+            countryCode &&
+            !/^[A-Za-z]{2}$/.test(countryCode)
+        ) {
+
+            return showError(
+                "Country Code 2 hərf olmalıdır."
+            );
+        }
+
+
+        /*
+         * Dynamic QR amount
+         */
+
+        if (type === "DYNAMIC") {
+
+            if (
+                !amountValue ||
+                Number(amountValue) <= 0
+            ) {
+
+                return showError(
+                    "DYNAMIC QR üçün amount daxil edin."
+                );
+
+            }
+
+        }
+
+
+        /*
+         * Build request
+         *
+         * 1:1 QrOperationRequest
+         */
+
+        const request = {
+
+            type: type,
+
+            channel: channel,
+
+            bankBic: bankBic,
+
+            aliasType: aliasType,
+
+            aliasValue: aliasValue,
+
+            currency: currency,
+
+            amount:
+                amountValue
+                    ? Number(amountValue)
+                    : null,
+
+            terminalId: terminalId,
+
+            merchantName: merchantName,
+
+            merchantCity: merchantCity,
+
+            merchantCategoryCode:
+            merchantCategoryCode,
+
+            countryCode:
+                countryCode || null,
+
+            postalCode:
+                postalCode || null,
+
+            coordinates:
+                coordinates || null
+        };
+
+
+        console.log(
+            "AZQR Request:",
+            request
+        );
+
+
+        /*
+         * Loading state
+         */
+
+        button.disabled = true;
+
+        button.innerText =
+            "AZQR yaradılır...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/v1/qr-operations",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(request)
+                    }
+                );
+
+
+            /*
+             * HTTP error
+             */
+
+            if (!response.ok) {
+
+                let message =
+                    "Backend xətası.";
+
+                try {
+
+                    const errorData =
+                        await response.json();
+
+                    message =
+                        errorData.message ||
+                        errorData.error ||
+                        message;
+
+                } catch (e) {
+                    // Ignore non-json response
+                }
+
+                throw new Error(message);
+            }
+
+
+            /*
+             * Expected response:
+             *
+             * {
+             *     "content": "BASE64..."
+             * }
+             */
+
+            const data =
+                await response.json();
+
+
+            if (!data.content) {
+
+                throw new Error(
+                    "Backend QR content qaytarmadı."
+                );
+
+            }
+
+
+            /*
+             * Show QR
+             */
+
+            qrImage.src =
+                "data:image/png;base64," +
+                data.content;
+
+
+            /*
+             * Show request
+             */
+
+            document.getElementById(
+                "requestJson"
+            ).textContent =
+                JSON.stringify(
+                    request,
+                    null,
+                    2
+                );
+
+
+            resultElement.style.display =
+                "block";
+
+
+        } catch (e) {
+
+            console.error(e);
+
+            showError(
+                "QR yaratmaq mümkün olmadı: " +
+                e.message
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.innerText =
+                "AZQR Yarat";
+        }
+    }
+
+
+    function showError(message) {
+
+        const errorElement =
+            document.getElementById("error");
+
+        errorElement.innerText =
+            message;
+
+        errorElement.style.display =
+            "block";
+    }
+
+
+    /*
+     * Initial state
+     */
+
+    updateAmountState();
+
 </script>
 
 </body>
