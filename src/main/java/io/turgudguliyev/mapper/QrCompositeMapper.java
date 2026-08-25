@@ -51,6 +51,8 @@ public enum QrCompositeMapper {
     private void addAvailabilityTime(QrCompositeDto dto, LocalDateTime expirationDate) {
         var issuedAt = DATE_TIME_UTIL.getCurrentTime();
         dto.setIssuedAt(DATE_TIME_UTIL.formatDate(issuedAt));
-        dto.setExpirationTime(DATE_TIME_UTIL.formatDate(expirationDate));
+        dto.setExpirationTime(
+            FUNCTION_UTIL.applyNullSafety(expirationDate, DATE_TIME_UTIL::formatDate)
+        );
     }
 }
