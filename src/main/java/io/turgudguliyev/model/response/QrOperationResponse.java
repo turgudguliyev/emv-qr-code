@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(staticName = "of")
 public class QrOperationResponse {
     private String content;
+    private String payload;
 }

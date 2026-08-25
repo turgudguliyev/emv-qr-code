@@ -36,7 +36,7 @@ public enum QrCompositeMapper {
                                 .aliasType(request.getAliasType().getCode())
                                 .aliasValue(request.getAliasValue())
                                 .pseudoBic(request.getBankBic())
-                                .countryCode(COUNTRY_CODE)
+                                .countryCode(request.getCountryCode() == null ? COUNTRY_CODE : request.getCountryCode())
                                 .transactionType(channel.getTransactionType())
                                 .localInstrument(MERCHANT_PRESENTED_QR.getCode())
                                 .build();

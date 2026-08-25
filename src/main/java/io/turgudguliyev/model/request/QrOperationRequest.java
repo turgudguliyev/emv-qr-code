@@ -25,6 +25,4 @@ public class QrOperationRequest {
     private String merchantCity;
     private String merchantCategoryCode;
     private String countryCode;
-    private String postalCode;
-    private String coordinates;
 }
