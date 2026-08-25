@@ -1,17 +1,18 @@
 package io.turgudguliyev.mapper;
 
-import io.turgudguliyev.model.dto.QrCompositeDto;
-import io.turgudguliyev.model.enums.Currency;
-import io.turgudguliyev.model.request.QrOperationRequest;
-
-import java.math.BigDecimal;
-
-import static io.turgudguliyev.model.constants.QrConstants.*;
+import static io.turgudguliyev.model.constants.QrConstants.COUNTRY_CODE;
+import static io.turgudguliyev.model.constants.QrConstants.EXPIRATION_MINUTES;
+import static io.turgudguliyev.model.constants.QrConstants.VERSION;
 import static io.turgudguliyev.model.enums.LocalInstrumentCode.MERCHANT_PRESENTED_QR;
 import static io.turgudguliyev.model.enums.QrType.DYNAMIC;
 import static io.turgudguliyev.model.enums.TerminalType.WEB_SITE;
 import static io.turgudguliyev.util.DateTimeUtil.DATE_TIME_UTIL;
 import static io.turgudguliyev.util.FunctionUtil.FUNCTION_UTIL;
+
+import io.turgudguliyev.model.dto.QrCompositeDto;
+import io.turgudguliyev.model.enums.Currency;
+import io.turgudguliyev.model.request.QrOperationRequest;
+import java.math.BigDecimal;
 
 public enum QrCompositeMapper {
     QR_COMPOSITE_MAPPER;
@@ -39,6 +40,8 @@ public enum QrCompositeMapper {
                                 .countryCode(request.getCountryCode() == null ? COUNTRY_CODE : request.getCountryCode())
                                 .transactionType(channel.getTransactionType())
                                 .localInstrument(MERCHANT_PRESENTED_QR.getCode())
+                                .hashedCardPan(request.getHashedCardPan())
+                                .hashedCardExpiryDate(request.getHashedCardExpiryDate())
                                 .build();
 
         addAvailabilityTime(dto);

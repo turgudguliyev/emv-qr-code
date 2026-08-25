@@ -35,4 +35,7 @@ public class QrCompositeDto {
 
     private String issuedAt;
     private String expirationTime;
+
+    private String hashedCardPan;
+    private String hashedCardExpiryDate;
 }

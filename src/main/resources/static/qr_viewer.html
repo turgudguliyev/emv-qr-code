@@ -446,19 +446,6 @@
             font-size: 12px;
         }
 
-        /* Empty */
-
-        .empty-payload {
-            display: block;
-
-            padding: 20px;
-
-            color: #9ca3af;
-
-            font-size: 13px;
-            font-style: italic;
-        }
-
         /* Mobile */
 
         @media (max-width: 700px) {
@@ -469,22 +456,26 @@
 
             .parsed-header {
                 grid-template-columns:
-            60px
-            70px
-            220px
-            1fr;
+                    60px
+                    70px
+                    220px
+                    1fr;
 
                 min-width: 700px;
             }
 
             .parsed-row {
                 grid-template-columns:
-            60px
-            70px
-            220px
-            1fr;
+                    60px
+                    70px
+                    220px
+                    1fr;
 
                 min-width: 700px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -500,7 +491,9 @@
         AZQR məlumatlarını daxil edin və QR kod yaradın.
     </div>
 
+    <!-- QR Configuration -->
     <div class="section">
+
         <div class="section-title">
             QR Configuration
         </div>
@@ -533,6 +526,7 @@
         </div>
     </div>
 
+    <!-- Bank / Terminal -->
     <div class="section">
 
         <div class="section-title">
@@ -572,6 +566,7 @@
         </div>
     </div>
 
+    <!-- Subject Identifier -->
     <div class="section">
 
         <div class="section-title">
@@ -614,6 +609,7 @@
         </div>
     </div>
 
+    <!-- Transaction -->
     <div class="section">
 
         <div class="section-title">
@@ -673,6 +669,7 @@
         </div>
     </div>
 
+    <!-- Merchant -->
     <div class="section">
 
         <div class="section-title">
@@ -708,6 +705,42 @@
                         value="Baku"
                         maxlength="15"
                         placeholder="Baku"
+                >
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Card Information -->
+    <div class="section">
+
+        <div class="section-title">
+            Card Information
+        </div>
+
+        <div class="grid">
+
+            <div class="field">
+                <label for="hashedCardPan">
+                    Hashed Card PAN
+                </label>
+
+                <input
+                        id="hashedCardPan"
+                        type="text"
+                        placeholder="Hashed Card PAN"
+                >
+            </div>
+
+            <div class="field">
+                <label for="hashedCardExpiryDate">
+                    Hashed Card Expiry Date
+                </label>
+
+                <input
+                        id="hashedCardExpiryDate"
+                        type="text"
+                        placeholder="Hashed Card Expiry Date"
                 >
             </div>
 
@@ -788,7 +821,9 @@
                     id="parsedPayload"
                     class="parsed-payload">
 
-                <div class="empty-payload" style="padding: 16px;">
+                <div
+                        class="empty-payload"
+                        style="padding: 16px;">
                     Payload parse edildikdən sonra burada
                     struktur göstəriləcək.
                 </div>
@@ -1008,10 +1043,116 @@
     }
 
 
+    /**
+     * Base64 decode helper.
+     *
+     * Əgər payload artıq EMV TLV formatındadırsa,
+     * olduğu kimi qaytarılır.
+     *
+     * Əgər Base64-dürsə, decode edilir.
+     */
+    function decodeBase64IfNeeded(payload) {
+
+        if (!payload) {
+            return payload;
+        }
+
+        const value =
+            String(payload).trim();
+
+        /*
+         * Normal EMV TLV payload:
+         *
+         * 000201...
+         *
+         * İlk 4 simvol:
+         * TAG    = 00
+         * LENGTH = 02
+         */
+        if (/^\d{4}/.test(value)) {
+            return value;
+        }
+
+        /*
+         * Base64 olub-olmadığını yoxlayırıq.
+         */
+        const base64Regex =
+            /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+
+        if (!base64Regex.test(value)) {
+            return value;
+        }
+
+        try {
+
+            const binaryString =
+                atob(value);
+
+            const bytes =
+                Uint8Array.from(
+                    binaryString,
+                    char => char.charCodeAt(0)
+                );
+
+            const decoded =
+                new TextDecoder("utf-8").decode(bytes);
+
+            /*
+             * Decode olunmuş nəticə EMV TLV
+             * formatına oxşayırsa istifadə edirik.
+             */
+            if (/^\d{4}/.test(decoded)) {
+                return decoded;
+            }
+
+            console.warn(
+                "Base64 decode edildi, amma nəticə EMV TLV formatında deyil:",
+                decoded
+            );
+
+        } catch (e) {
+
+            console.warn(
+                "Payload Base64 decode edilə bilmədi:",
+                e
+            );
+        }
+
+        return value;
+    }
+
+
+    /**
+     * EMV QR TLV parser.
+     *
+     * Format:
+     *
+     * TAG    = 2 rəqəm
+     * LENGTH = 2 rəqəm
+     * VALUE  = LENGTH qədər
+     *
+     * Məsələn:
+     *
+     * 0002
+     * 01
+     *
+     * => TAG 00
+     * => LENGTH 02
+     * => VALUE 01
+     */
     function parseEmvQr(
         payload,
         context = "ROOT"
     ) {
+
+        if (!payload) {
+            return [];
+        }
+
+        payload =
+            String(payload)
+                .trim()
+                .replace(/^\uFEFF/, "");
 
         const result = [];
 
@@ -1019,6 +1160,9 @@
 
         while (position < payload.length) {
 
+            /*
+             * TAG
+             */
             if (position + 2 > payload.length) {
 
                 throw new Error(
@@ -1032,36 +1176,59 @@
                     position + 2
                 );
 
+            /*
+             * TAG yalnız rəqəmlərdən ibarət
+             * olmalıdır.
+             */
+            if (!/^\d{2}$/.test(tag)) {
 
-            if (position + 4 > payload.length) {
+                throw new Error(
+                    `Invalid tag "${tag}" at position ${position}. ` +
+                    `Payload EMV TLV formatında deyil.`
+                );
+            }
+
+            position += 2;
+
+
+            /*
+             * LENGTH
+             */
+            if (position + 2 > payload.length) {
 
                 throw new Error(
                     `Length oxuna bilmədi. Tag: ${tag}`
                 );
             }
 
-
             const lengthString =
                 payload.substring(
-                    position + 2,
-                    position + 4
+                    position,
+                    position + 2
                 );
 
-
+            /*
+             * LENGTH yalnız 2 rəqəm olmalıdır.
+             */
             if (!/^\d{2}$/.test(lengthString)) {
 
                 throw new Error(
-                    `Invalid length "${lengthString}" for tag ${tag}`
+                    `Invalid length "${lengthString}" for tag ${tag} ` +
+                    `at position ${position}.`
                 );
             }
-
 
             const length =
                 Number(lengthString);
 
+            position += 2;
 
+
+            /*
+             * VALUE
+             */
             const valueStart =
-                position + 4;
+                position;
 
             const valueEnd =
                 valueStart + length;
@@ -1071,7 +1238,9 @@
 
                 throw new Error(
                     `Tag ${tag} üçün göstərilən length ` +
-                    `${length} payload sərhədini keçir.`
+                    `${length} payload sərhədini keçir. ` +
+                    `Position: ${position}, ` +
+                    `Payload length: ${payload.length}`
                 );
             }
 
@@ -1109,6 +1278,10 @@
             };
 
 
+            /*
+             * Composite tag-dirsə,
+             * içindəki payload-u da parse edirik.
+             */
             const childContext =
                 COMPOSITE_CONTEXTS[tag];
 
@@ -1126,7 +1299,9 @@
                 } catch (e) {
 
                     node.children = [];
-                    node.parseError = e.message;
+
+                    node.parseError =
+                        e.message;
                 }
             }
 
@@ -1258,8 +1433,11 @@
 
 
             row.appendChild(tagElement);
+
             row.appendChild(lengthElement);
+
             row.appendChild(nameElement);
+
             row.appendChild(valueElement);
 
 
@@ -1274,6 +1452,7 @@
                 descriptionRow.className =
                     "parsed-description-row";
 
+
                 descriptionRow.style.paddingLeft =
                     `${16 + level * 25 + 85}px`;
 
@@ -1284,6 +1463,7 @@
                 description.className =
                     "parsed-description";
 
+
                 description.textContent =
                     node.description;
 
@@ -1291,6 +1471,7 @@
                 descriptionRow.appendChild(
                     description
                 );
+
 
                 container.appendChild(
                     descriptionRow
@@ -1306,9 +1487,11 @@
                 errorRow.className =
                     "parsed-error";
 
+
                 errorRow.textContent =
                     "Nested parse error: " +
                     node.parseError;
+
 
                 container.appendChild(
                     errorRow
@@ -1377,6 +1560,10 @@
             "none";
 
 
+        /*
+         * Basic fields
+         */
+
         const type =
             document.getElementById(
                 "type"
@@ -1443,6 +1630,26 @@
             ).value.trim();
 
 
+        /*
+         * Card fields
+         */
+
+        const hashedCardPan =
+            document.getElementById(
+                "hashedCardPan"
+            ).value.trim();
+
+
+        const hashedCardExpiryDate =
+            document.getElementById(
+                "hashedCardExpiryDate"
+            ).value.trim();
+
+
+        /*
+         * Validation
+         */
+
         if (!bankBic) {
 
             return showError(
@@ -1507,6 +1714,10 @@
         }
 
 
+        /*
+         * Request
+         */
+
         const request = {
 
             type: type,
@@ -1533,7 +1744,13 @@
             merchantCity: merchantCity,
 
             merchantCategoryCode:
-            merchantCategoryCode
+            merchantCategoryCode,
+
+            hashedCardPan:
+                hashedCardPan || null,
+
+            hashedCardExpiryDate:
+                hashedCardExpiryDate || null
         };
 
 
@@ -1583,6 +1800,7 @@
                         message;
 
                 } catch (e) {
+                    // Response JSON deyilsə default message istifadə olunur.
                 }
 
 
@@ -1602,10 +1820,18 @@
             }
 
 
+            /*
+             * QR image
+             */
+
             qrImage.src =
                 "data:image/png;base64," +
                 data.content;
 
+
+            /*
+             * Request JSON
+             */
 
             document.getElementById(
                 "requestJson"
@@ -1616,6 +1842,10 @@
                     2
                 );
 
+
+            /*
+             * Payload
+             */
 
             const payloadElement =
                 document.getElementById(
@@ -1638,6 +1868,10 @@
             }
 
 
+            /*
+             * Parsed payload
+             */
+
             const parsedPayloadElement =
                 document.getElementById(
                     "parsedPayload"
@@ -1648,9 +1882,48 @@
 
                 try {
 
+                    console.log(
+                        "Original EMV QR payload:",
+                        data.payload
+                    );
+
+
+                    /*
+                     * Payload-u lazım gəlsə decode edirik.
+                     */
+                    const decodedPayload =
+                        decodeBase64IfNeeded(
+                            data.payload
+                        );
+
+
+                    console.log(
+                        "Decoded EMV QR payload:",
+                        decodedPayload
+                    );
+
+
+                    /*
+                     * EMV TLV validation.
+                     *
+                     * Ən azı ilk TAG + LENGTH
+                     * numeric olmalıdır.
+                     */
+                    if (!/^\d{4}/.test(
+                        decodedPayload
+                    )) {
+
+                        throw new Error(
+                            "Payload EMV TLV formatında deyil. " +
+                            "İlk 4 simvol TAG + LENGTH olmalıdır. " +
+                            `Payload: ${decodedPayload.substring(0, 30)}`
+                        );
+                    }
+
+
                     const parsed =
                         parseEmvQr(
-                            data.payload
+                            decodedPayload
                         );
 
 
@@ -1674,7 +1947,7 @@
 
                     parsedPayloadElement.innerHTML = `
                         <div class="parsed-error">
-                            EMV QR parse xətası:
+                            <strong>EMV QR parse xətası:</strong>
                             ${escapeHtml(e.message)}
                         </div>
                     `;

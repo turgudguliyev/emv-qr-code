@@ -39,7 +39,10 @@ public enum QrTag {
 
     COUNTRY_CODE("58", "Ölkə kodu"),
     MERCHANT_NAME("59", "AZQR kod təqdim edən subyektin adı"),
-    MERCHANT_CITY("60", "AZQR kod təqdim edən subyektin şəhəri");
+    MERCHANT_CITY("60", "AZQR kod təqdim edən subyektin şəhəri"),
+
+    CARD_PAN("65", "Kart pan"),
+    CARD_EXPIRY_DATE("66", "Kart expiry date");
 
     private final String id;
     private final String description;
