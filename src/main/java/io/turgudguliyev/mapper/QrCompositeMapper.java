@@ -4,7 +4,6 @@ import static io.turgudguliyev.model.constants.QrConstants.COUNTRY_CODE;
 import static io.turgudguliyev.model.constants.QrConstants.EXPIRATION_MINUTES;
 import static io.turgudguliyev.model.constants.QrConstants.VERSION;
 import static io.turgudguliyev.model.enums.LocalInstrumentCode.MERCHANT_PRESENTED_QR;
-import static io.turgudguliyev.model.enums.QrType.DYNAMIC;
 import static io.turgudguliyev.model.enums.TerminalType.WEB_SITE;
 import static io.turgudguliyev.util.DateTimeUtil.DATE_TIME_UTIL;
 import static io.turgudguliyev.util.FunctionUtil.FUNCTION_UTIL;
@@ -50,15 +49,9 @@ public enum QrCompositeMapper {
     }
 
     private void addAvailabilityTime(QrCompositeDto dto) {
-        var isDynamic = DYNAMIC.getCode()
-                               .equals(dto.getType());
-
-        if (isDynamic) {
-            var issuedAt = DATE_TIME_UTIL.getCurrentTime();
-            var expirationTime = DATE_TIME_UTIL.addMinutes(issuedAt, EXPIRATION_MINUTES);
-
-            dto.setIssuedAt(DATE_TIME_UTIL.formatDate(issuedAt));
-            dto.setExpirationTime(DATE_TIME_UTIL.formatDate(expirationTime));
-        }
+        var issuedAt = DATE_TIME_UTIL.getCurrentTime();
+        var expirationTime = DATE_TIME_UTIL.addMinutes(issuedAt, EXPIRATION_MINUTES);
+        dto.setIssuedAt(DATE_TIME_UTIL.formatDate(issuedAt));
+        dto.setExpirationTime(DATE_TIME_UTIL.formatDate(expirationTime));
     }
 }
