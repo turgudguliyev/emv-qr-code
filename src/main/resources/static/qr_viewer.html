@@ -711,11 +711,10 @@
         </div>
     </div>
 
-    <!-- Card Information -->
     <div class="section">
 
         <div class="section-title">
-            Card Information
+            Card / QR Information
         </div>
 
         <div class="grid">
@@ -742,6 +741,21 @@
                         type="text"
                         placeholder="Hashed Card Expiry Date"
                 >
+            </div>
+
+            <div class="field">
+                <label for="expirationDate">
+                    Expiration Date
+                </label>
+
+                <input
+                        id="expirationDate"
+                        type="datetime-local"
+                >
+
+                <div class="hint">
+                    QR kodun son istifadə tarixi və vaxtı.
+                </div>
             </div>
 
         </div>
@@ -1645,6 +1659,11 @@
                 "hashedCardExpiryDate"
             ).value.trim();
 
+        const expirationDate =
+            document.getElementById(
+                "expirationDate"
+            ).value;
+
 
         /*
          * Validation
@@ -1750,7 +1769,10 @@
                 hashedCardPan || null,
 
             hashedCardExpiryDate:
-                hashedCardExpiryDate || null
+                hashedCardExpiryDate || null,
+
+            expirationDate:
+                expirationDate || null
         };
 
 

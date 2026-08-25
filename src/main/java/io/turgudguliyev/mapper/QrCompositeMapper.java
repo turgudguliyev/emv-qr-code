@@ -1,7 +1,6 @@
 package io.turgudguliyev.mapper;
 
 import static io.turgudguliyev.model.constants.QrConstants.COUNTRY_CODE;
-import static io.turgudguliyev.model.constants.QrConstants.EXPIRATION_MINUTES;
 import static io.turgudguliyev.model.constants.QrConstants.VERSION;
 import static io.turgudguliyev.model.enums.LocalInstrumentCode.MERCHANT_PRESENTED_QR;
 import static io.turgudguliyev.model.enums.TerminalType.WEB_SITE;
@@ -12,6 +11,7 @@ import io.turgudguliyev.model.dto.QrCompositeDto;
 import io.turgudguliyev.model.enums.Currency;
 import io.turgudguliyev.model.request.QrOperationRequest;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public enum QrCompositeMapper {
     QR_COMPOSITE_MAPPER;
@@ -43,15 +43,14 @@ public enum QrCompositeMapper {
                                 .hashedCardExpiryDate(request.getHashedCardExpiryDate())
                                 .build();
 
-        addAvailabilityTime(dto);
+        addAvailabilityTime(dto, request.getExpirationDate());
 
         return dto;
     }
 
-    private void addAvailabilityTime(QrCompositeDto dto) {
+    private void addAvailabilityTime(QrCompositeDto dto, LocalDateTime expirationDate) {
         var issuedAt = DATE_TIME_UTIL.getCurrentTime();
-        var expirationTime = DATE_TIME_UTIL.addMinutes(issuedAt, EXPIRATION_MINUTES);
         dto.setIssuedAt(DATE_TIME_UTIL.formatDate(issuedAt));
-        dto.setExpirationTime(DATE_TIME_UTIL.formatDate(expirationTime));
+        dto.setExpirationTime(DATE_TIME_UTIL.formatDate(expirationDate));
     }
 }

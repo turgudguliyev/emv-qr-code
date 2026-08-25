@@ -5,6 +5,7 @@ import io.turgudguliyev.model.enums.Channel;
 import io.turgudguliyev.model.enums.Currency;
 import io.turgudguliyev.model.enums.QrType;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +28,5 @@ public class QrOperationRequest {
     private String countryCode;
     private String hashedCardPan;
     private String hashedCardExpiryDate;
+    private LocalDateTime expirationDate;
 }
