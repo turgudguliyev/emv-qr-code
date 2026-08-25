@@ -21,7 +21,7 @@
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: #ffffff;
             padding: 30px;
@@ -84,20 +84,28 @@
             width: 100%;
             height: 42px;
             padding: 0 12px;
+
             border: 1px solid #d1d5db;
             border-radius: 8px;
+
             background: #ffffff;
+
             font-size: 14px;
             outline: none;
+
+            transition: border-color 0.15s ease,
+            box-shadow 0.15s ease;
         }
 
         input:focus,
         select:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
         }
 
-        input:disabled {
+        input:disabled,
+        select:disabled {
             background: #f3f4f6;
             cursor: not-allowed;
         }
@@ -111,17 +119,28 @@
         button {
             width: 100%;
             height: 46px;
+
             border: none;
             border-radius: 9px;
+
             background: #2563eb;
             color: white;
+
             font-size: 15px;
             font-weight: 700;
+
             cursor: pointer;
+
+            transition: background 0.15s ease,
+            transform 0.05s ease;
         }
 
         button:hover {
             background: #1d4ed8;
+        }
+
+        button:active {
+            transform: translateY(1px);
         }
 
         button:disabled {
@@ -131,58 +150,153 @@
 
         .error {
             display: none;
+
             margin-top: 18px;
-            padding: 12px;
+            padding: 12px 14px;
+
             border-radius: 8px;
+
             background: #fee2e2;
             color: #b91c1c;
+
             font-size: 14px;
         }
 
         .result {
             display: none;
+
             margin-top: 30px;
             padding-top: 25px;
+
             border-top: 1px solid #e5e7eb;
-            text-align: center;
         }
 
         .success {
+            margin-bottom: 20px;
+
+            text-align: center;
+
             color: #15803d;
             font-size: 15px;
             font-weight: 700;
         }
 
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            margin-bottom: 30px;
+        }
+
         .qr-image {
             display: block;
+
             width: 280px;
+            height: 280px;
+
             max-width: 100%;
-            margin: 18px auto 0;
+
+            object-fit: contain;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+
+            padding: 10px;
+
+            background: white;
         }
 
-        .request-section {
-            margin-top: 25px;
-            text-align: left;
+        .result-section {
+            margin-top: 22px;
         }
 
-        .request-section-title {
+        .result-title {
+            margin-bottom: 8px;
+
             font-size: 14px;
             font-weight: 700;
+
+            color: #111827;
+        }
+
+        .code-box {
+            width: 100%;
+
+            padding: 15px;
+
+            background: #111827;
+            color: #e5e7eb;
+
+            border-radius: 8px;
+
+            font-family: "SFMono-Regular",
+            Consolas,
+            "Liberation Mono",
+            monospace;
+
+            font-size: 12px;
+            line-height: 1.6;
+
+            white-space: pre-wrap;
+            word-break: break-all;
+
+            overflow-x: auto;
+        }
+
+        .payload-box {
+            padding: 18px;
+
+            background: #0f172a;
+            color: #e2e8f0;
+
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+
+            font-family: "SFMono-Regular",
+            Consolas,
+            "Liberation Mono",
+            monospace;
+
+            font-size: 13px;
+            line-height: 1.7;
+
+            word-break: break-all;
+            overflow-wrap: anywhere;
+
+            min-height: 60px;
+        }
+
+        .payload-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
             margin-bottom: 8px;
         }
 
-        pre {
-            margin: 0;
-            padding: 15px;
-            background: #111827;
-            color: #e5e7eb;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-size: 12px;
-            line-height: 1.5;
+        .payload-badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 4px 8px;
+
+            border-radius: 5px;
+
+            background: #dbeafe;
+            color: #1d4ed8;
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .empty-payload {
+            color: #94a3b8;
+            font-style: italic;
         }
 
         @media (max-width: 650px) {
+
             body {
                 padding: 15px;
             }
@@ -197,6 +311,11 @@
 
             .full {
                 grid-column: auto;
+            }
+
+            .qr-image {
+                width: 240px;
+                height: 240px;
             }
         }
     </style>
@@ -228,12 +347,20 @@
             <div class="field">
 
                 <label for="type">
-                    QR Type <span class="required">*</span>
+                    QR Type
+                    <span class="required">*</span>
                 </label>
 
                 <select id="type">
-                    <option value="DYNAMIC">DYNAMIC</option>
-                    <option value="STATIC">STATIC</option>
+
+                    <option value="DYNAMIC">
+                        DYNAMIC
+                    </option>
+
+                    <option value="STATIC">
+                        STATIC
+                    </option>
+
                 </select>
 
             </div>
@@ -242,7 +369,8 @@
             <div class="field">
 
                 <label for="channel">
-                    Channel <span class="required">*</span>
+                    Channel
+                    <span class="required">*</span>
                 </label>
 
                 <select id="channel">
@@ -275,7 +403,8 @@
             <div class="field">
 
                 <label for="bankBic">
-                    Bank BIC <span class="required">*</span>
+                    Bank BIC
+                    <span class="required">*</span>
                 </label>
 
                 <input
@@ -291,7 +420,8 @@
             <div class="field">
 
                 <label for="terminalId">
-                    Terminal ID <span class="required">*</span>
+                    Terminal ID
+                    <span class="required">*</span>
                 </label>
 
                 <input
@@ -309,7 +439,7 @@
 
 
     <!-- ========================= -->
-    <!-- SUBJECT IDENTIFIER -->
+    <!-- SUBJECT -->
     <!-- ========================= -->
 
     <div class="section">
@@ -323,7 +453,8 @@
             <div class="field">
 
                 <label for="aliasType">
-                    Alias Type <span class="required">*</span>
+                    Alias Type
+                    <span class="required">*</span>
                 </label>
 
                 <select id="aliasType">
@@ -364,7 +495,8 @@
             <div class="field">
 
                 <label for="aliasValue">
-                    Alias Value <span class="required">*</span>
+                    Alias Value
+                    <span class="required">*</span>
                 </label>
 
                 <input
@@ -396,7 +528,8 @@
             <div class="field">
 
                 <label for="currency">
-                    Currency <span class="required">*</span>
+                    Currency
+                    <span class="required">*</span>
                 </label>
 
                 <select id="currency">
@@ -472,7 +605,8 @@
             <div class="field">
 
                 <label for="merchantName">
-                    Merchant Name <span class="required">*</span>
+                    Merchant Name
+                    <span class="required">*</span>
                 </label>
 
                 <input
@@ -489,7 +623,8 @@
             <div class="field">
 
                 <label for="merchantCity">
-                    Merchant City <span class="required">*</span>
+                    Merchant City
+                    <span class="required">*</span>
                 </label>
 
                 <input
@@ -573,7 +708,9 @@
     </button>
 
 
+    <!-- ========================= -->
     <!-- ERROR -->
+    <!-- ========================= -->
 
     <div
             id="error"
@@ -593,20 +730,60 @@
             AZQR uğurla yaradıldı
         </div>
 
-        <img
-                id="qrImage"
-                class="qr-image"
-                alt="AZQR"
-        >
+
+        <!-- QR -->
+
+        <div class="qr-container">
+
+            <img
+                    id="qrImage"
+                    class="qr-image"
+                    alt="AZQR"
+            >
+
+        </div>
 
 
-        <div class="request-section">
+        <!-- ========================= -->
+        <!-- REQUEST -->
+        <!-- ========================= -->
 
-            <div class="request-section-title">
+        <div class="result-section">
+
+            <div class="result-title">
                 Göndərilən Request
             </div>
 
-            <pre id="requestJson"></pre>
+            <div
+                    id="requestJson"
+                    class="code-box">
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- PAYLOAD -->
+        <!-- ========================= -->
+
+        <div class="result-section">
+
+            <div class="payload-label">
+
+                <div class="result-title" style="margin: 0;">
+                    AZQR Payload
+                </div>
+
+                <span class="payload-badge">
+                    TLV
+                </span>
+
+            </div>
+
+            <div
+                    id="payload"
+                    class="payload-box">
+            </div>
 
         </div>
 
@@ -625,7 +802,9 @@
 
 
     /*
+     * ============================================
      * DYNAMIC / STATIC
+     * ============================================
      */
 
     typeElement.addEventListener(
@@ -649,13 +828,14 @@
 
             amountElement.placeholder =
                 "Optional";
-
         }
     }
 
 
     /*
-     * Generate AZQR
+     * ============================================
+     * GENERATE QR
+     * ============================================
      */
 
     async function generateQr() {
@@ -666,13 +846,19 @@
             );
 
         const errorElement =
-            document.getElementById("error");
+            document.getElementById(
+                "error"
+            );
 
         const resultElement =
-            document.getElementById("result");
+            document.getElementById(
+                "result"
+            );
 
         const qrImage =
-            document.getElementById("qrImage");
+            document.getElementById(
+                "qrImage"
+            );
 
 
         /*
@@ -691,39 +877,54 @@
          */
 
         const type =
-            document.getElementById("type").value;
+            document.getElementById(
+                "type"
+            ).value;
 
         const channel =
-            document.getElementById("channel").value;
+            document.getElementById(
+                "channel"
+            ).value;
 
         const bankBic =
-            document.getElementById("bankBic")
-                .value.trim();
+            document.getElementById(
+                "bankBic"
+            ).value.trim();
 
         const aliasType =
-            document.getElementById("aliasType").value;
+            document.getElementById(
+                "aliasType"
+            ).value;
 
         const aliasValue =
-            document.getElementById("aliasValue")
-                .value.trim();
+            document.getElementById(
+                "aliasValue"
+            ).value.trim();
 
         const currency =
-            document.getElementById("currency").value;
+            document.getElementById(
+                "currency"
+            ).value;
 
         const amountValue =
-            document.getElementById("amount").value;
+            document.getElementById(
+                "amount"
+            ).value;
 
         const terminalId =
-            document.getElementById("terminalId")
-                .value.trim();
+            document.getElementById(
+                "terminalId"
+            ).value.trim();
 
         const merchantName =
-            document.getElementById("merchantName")
-                .value.trim();
+            document.getElementById(
+                "merchantName"
+            ).value.trim();
 
         const merchantCity =
-            document.getElementById("merchantCity")
-                .value.trim();
+            document.getElementById(
+                "merchantCity"
+            ).value.trim();
 
         const merchantCategoryCode =
             document.getElementById(
@@ -731,62 +932,76 @@
             ).value.trim();
 
         const countryCode =
-            document.getElementById("countryCode")
-                .value.trim();
+            document.getElementById(
+                "countryCode"
+            ).value.trim();
 
         const postalCode =
-            document.getElementById("postalCode")
-                .value.trim();
+            document.getElementById(
+                "postalCode"
+            ).value.trim();
 
         const coordinates =
-            document.getElementById("coordinates")
-                .value.trim();
+            document.getElementById(
+                "coordinates"
+            ).value.trim();
 
 
         /*
-         * Validation
+         * ============================================
+         * VALIDATION
+         * ============================================
          */
 
         if (!bankBic) {
+
             return showError(
                 "Bank BIC daxil edin."
             );
         }
 
+
         if (!aliasValue) {
+
             return showError(
                 "Alias Value daxil edin."
             );
         }
 
+
         if (!terminalId) {
+
             return showError(
                 "Terminal ID daxil edin."
             );
         }
 
+
         if (!merchantName) {
+
             return showError(
                 "Merchant Name daxil edin."
             );
         }
 
+
         if (!merchantCity) {
+
             return showError(
                 "Merchant City daxil edin."
             );
         }
 
+
         /*
          * MCC
-         *
-         * String saxlanılır ki,
-         * 0123 kimi dəyərlər itməsin.
          */
 
-        if (!/^\d{4}$/.test(
-            merchantCategoryCode
-        )) {
+        if (
+            !/^\d{4}$/.test(
+                merchantCategoryCode
+            )
+        ) {
 
             return showError(
                 "Merchant Category Code 4 rəqəm olmalıdır."
@@ -800,7 +1015,9 @@
 
         if (
             countryCode &&
-            !/^[A-Za-z]{2}$/.test(countryCode)
+            !/^[A-Za-z]{2}$/.test(
+                countryCode
+            )
         ) {
 
             return showError(
@@ -810,10 +1027,12 @@
 
 
         /*
-         * Dynamic QR amount
+         * Dynamic amount
          */
 
-        if (type === "DYNAMIC") {
+        if (
+            type === "DYNAMIC"
+        ) {
 
             if (
                 !amountValue ||
@@ -823,16 +1042,14 @@
                 return showError(
                     "DYNAMIC QR üçün amount daxil edin."
                 );
-
             }
-
         }
 
 
         /*
-         * Build request
-         *
-         * 1:1 QrOperationRequest
+         * ============================================
+         * REQUEST
+         * ============================================
          */
 
         const request = {
@@ -881,7 +1098,7 @@
 
 
         /*
-         * Loading state
+         * Loading
          */
 
         button.disabled = true;
@@ -892,25 +1109,37 @@
 
         try {
 
+            /*
+             * ========================================
+             * BACKEND
+             * ========================================
+             */
+
             const response =
                 await fetch(
                     "/v1/qr-operations",
                     {
+
                         method: "POST",
 
                         headers: {
+
                             "Content-Type":
                                 "application/json"
                         },
 
                         body:
-                            JSON.stringify(request)
+                            JSON.stringify(
+                                request
+                            )
                     }
                 );
 
 
             /*
-             * HTTP error
+             * ========================================
+             * HTTP ERROR
+             * ========================================
              */
 
             if (!response.ok) {
@@ -918,10 +1147,12 @@
                 let message =
                     "Backend xətası.";
 
+
                 try {
 
                     const errorData =
                         await response.json();
+
 
                     message =
                         errorData.message ||
@@ -929,18 +1160,27 @@
                         message;
 
                 } catch (e) {
-                    // Ignore non-json response
+
+                    // Non-JSON response
                 }
 
-                throw new Error(message);
+
+                throw new Error(
+                    message
+                );
             }
 
 
             /*
-             * Expected response:
+             * ========================================
+             * RESPONSE
+             * ========================================
+             *
+             * Expected:
              *
              * {
-             *     "content": "BASE64..."
+             *     "content": "BASE64...",
+             *     "payload": "000201..."
              * }
              */
 
@@ -948,17 +1188,22 @@
                 await response.json();
 
 
+            /*
+             * QR content
+             */
+
             if (!data.content) {
 
                 throw new Error(
                     "Backend QR content qaytarmadı."
                 );
-
             }
 
 
             /*
-             * Show QR
+             * ========================================
+             * QR IMAGE
+             * ========================================
              */
 
             qrImage.src =
@@ -967,7 +1212,9 @@
 
 
             /*
-             * Show request
+             * ========================================
+             * REQUEST JSON
+             * ========================================
              */
 
             document.getElementById(
@@ -980,18 +1227,56 @@
                 );
 
 
+            /*
+             * ========================================
+             * PAYLOAD
+             * ========================================
+             */
+
+            const payloadElement =
+                document.getElementById(
+                    "payload"
+                );
+
+
+            if (data.payload) {
+
+                payloadElement.textContent =
+                    data.payload;
+
+            } else {
+
+                payloadElement.innerHTML = `
+                    <span class="empty-payload">
+                        Backend response-da payload yoxdur.
+                    </span>
+                `;
+            }
+
+
+            /*
+             * ========================================
+             * SHOW RESULT
+             * ========================================
+             */
+
             resultElement.style.display =
                 "block";
 
 
         } catch (e) {
 
-            console.error(e);
+            console.error(
+                "AZQR Error:",
+                e
+            );
+
 
             showError(
                 "QR yaratmaq mümkün olmadı: " +
                 e.message
             );
+
 
         } finally {
 
@@ -1003,13 +1288,23 @@
     }
 
 
+    /*
+     * ============================================
+     * ERROR
+     * ============================================
+     */
+
     function showError(message) {
 
         const errorElement =
-            document.getElementById("error");
+            document.getElementById(
+                "error"
+            );
+
 
         errorElement.innerText =
             message;
+
 
         errorElement.style.display =
             "block";
@@ -1017,7 +1312,9 @@
 
 
     /*
-     * Initial state
+     * ============================================
+     * INITIAL STATE
+     * ============================================
      */
 
     updateAmountState();
