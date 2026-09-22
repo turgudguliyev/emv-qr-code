@@ -75,9 +75,6 @@
             color: #374151;
         }
 
-        .required {
-            color: #dc2626;
-        }
 
         input,
         select {
@@ -503,10 +500,10 @@
             <div class="field">
                 <label for="type">
                     QR Type
-                    <span class="required">*</span>
                 </label>
 
                 <select id="type">
+                    <option value="">—</option>
                     <option value="DYNAMIC">DYNAMIC</option>
                     <option value="STATIC">STATIC</option>
                 </select>
@@ -515,10 +512,10 @@
             <div class="field">
                 <label for="channel">
                     Channel
-                    <span class="required">*</span>
                 </label>
 
                 <select id="channel">
+                    <option value="">—</option>
                     <option value="MERCHANT">MERCHANT</option>
                 </select>
             </div>
@@ -538,13 +535,11 @@
             <div class="field">
                 <label for="bankBic">
                     Bank BIC
-                    <span class="required">*</span>
                 </label>
 
                 <input
                         id="bankBic"
                         type="text"
-                        value="VTBAZ020"
                         placeholder="VTBAZ020"
                 >
             </div>
@@ -576,14 +571,14 @@
             <div class="field">
                 <label for="aliasType">
                     Alias Type
-                    <span class="required">*</span>
                 </label>
 
                 <select id="aliasType">
+                    <option value="">—</option>
                     <option value="PIN">PIN</option>
                     <option value="MOBILE_NUMBER">MOBILE NUMBER</option>
                     <option value="EMAIL">EMAIL</option>
-                    <option value="IBAN" selected>IBAN</option>
+                    <option value="IBAN">IBAN</option>
                     <option value="TAX_ID">TAX ID</option>
                     <option value="MERCHANT_ID">MERCHANT ID</option>
                     <option value="OBJECT_CODE">OBJECT CODE</option>
@@ -593,13 +588,11 @@
             <div class="field">
                 <label for="aliasValue">
                     Alias Value
-                    <span class="required">*</span>
                 </label>
 
                 <input
                         id="aliasValue"
                         type="text"
-                        value="FR7630006000011234567890189"
                         placeholder="IBAN / PIN / Mobile / Email"
                 >
             </div>
@@ -619,10 +612,10 @@
             <div class="field">
                 <label for="currency">
                     Currency
-                    <span class="required">*</span>
                 </label>
 
                 <select id="currency">
+                    <option value="">—</option>
                     <option value="AZN">AZN</option>
                 </select>
             </div>
@@ -641,26 +634,24 @@
                 >
 
                 <div class="hint">
-                    DYNAMIC QR üçün məcburidir.
+                    Optional.
                 </div>
             </div>
 
             <div class="field">
                 <label for="merchantCategoryCode">
                     Merchant Category Code
-                    <span class="required">*</span>
                 </label>
 
                 <input
                         id="merchantCategoryCode"
                         type="text"
-                        value="5812"
                         maxlength="4"
                         placeholder="5812"
                 >
 
                 <div class="hint">
-                    4 rəqəm olmalıdır.
+                    Optional, 4 rəqəm.
                 </div>
             </div>
 
@@ -679,13 +670,11 @@
             <div class="field">
                 <label for="merchantName">
                     Merchant Name
-                    <span class="required">*</span>
                 </label>
 
                 <input
                         id="merchantName"
                         type="text"
-                        value="My Shop"
                         maxlength="25"
                         placeholder="Merchant Name"
                 >
@@ -694,13 +683,11 @@
             <div class="field">
                 <label for="merchantCity">
                     Merchant City
-                    <span class="required">*</span>
                 </label>
 
                 <input
                         id="merchantCity"
                         type="text"
-                        value="Baku"
                         maxlength="15"
                         placeholder="Baku"
                 >
@@ -1042,16 +1029,10 @@
 
     function updateAmountState() {
 
-        if (typeElement.value === "DYNAMIC") {
-
-            amountElement.required = true;
-            amountElement.placeholder = "Məs: 25.50";
-
-        } else {
-
-            amountElement.required = false;
-            amountElement.placeholder = "Optional";
-        }
+        amountElement.placeholder =
+            typeElement.value === "DYNAMIC"
+                ? "Məs: 25.50"
+                : "Optional";
     }
 
 
@@ -1664,96 +1645,36 @@
 
 
         /*
-         * Validation
-         */
-
-        if (!bankBic) {
-
-            return showError(
-                "Bank BIC daxil edin."
-            );
-        }
-
-
-        if (!aliasValue) {
-
-            return showError(
-                "Alias Value daxil edin."
-            );
-        }
-
-
-        if (!merchantName) {
-
-            return showError(
-                "Merchant Name daxil edin."
-            );
-        }
-
-
-        if (!merchantCity) {
-
-            return showError(
-                "Merchant City daxil edin."
-            );
-        }
-
-
-        if (!/^\d{4}$/.test(
-            merchantCategoryCode
-        )) {
-
-            return showError(
-                "Merchant Category Code 4 rəqəm olmalıdır."
-            );
-        }
-
-
-        if (type === "DYNAMIC") {
-
-            if (
-                !amountValue ||
-                Number(amountValue) <= 0
-            ) {
-
-                return showError(
-                    "DYNAMIC QR üçün amount daxil edin."
-                );
-            }
-        }
-
-
-        /*
          * Request
          */
 
         const request = {
 
-            type: type,
+            type: type || null,
 
-            channel: channel,
+            channel: channel || null,
 
-            bankBic: bankBic,
+            bankBic: bankBic || null,
 
-            aliasType: aliasType,
+            aliasType: aliasType || null,
 
-            aliasValue: aliasValue,
+            aliasValue: aliasValue || null,
 
-            currency: currency,
+            currency: currency || null,
 
             amount:
                 amountValue
                     ? Number(amountValue)
                     : null,
 
-            terminalId: terminalId,
+            terminalId: terminalId || null,
 
-            merchantName: merchantName,
+            merchantName: merchantName || null,
 
-            merchantCity: merchantCity,
+            merchantCity: merchantCity || null,
 
             merchantCategoryCode:
-            merchantCategoryCode,
+                merchantCategoryCode || null,
 
             hashedCardPan:
                 hashedCardPan || null,
@@ -1763,6 +1684,7 @@
 
             expirationDate:
                 expirationDate || null
+
         };
 
 
